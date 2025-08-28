@@ -1,9 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import Schedule from '@/components/Schedule';
-import {IconSymbol} from "@/components/ui/IconSymbol";
 
+// Mock data remains the same for now
 const mockEvents = [
   {
     id: 1,
@@ -29,13 +31,45 @@ const ActionButton = ({ title, subtitle, iconName, color, onPress }) => (
   </Pressable>
 );
 
+// Helper to get week range string
+const getWeekRange = (date) => {
+  const startOfWeek = new Date(date);
+  startOfWeek.setDate(date.getDate() - date.getDay()); // Sunday
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday
+
+  const format = (d) => `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  return `${format(startOfWeek)} - ${format(endOfWeek)}`;
+};
+
 export default function HomeScreen() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+
+  const handlePrevWeek = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(currentDate.getDate() - 7);
+    setCurrentDate(newDate);
+  };
+
+  const handleNextWeek = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(currentDate.getDate() + 7);
+    setCurrentDate(newDate);
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    const newDate = selectedDate || currentDate;
+    setShowPicker(Platform.OS === 'ios');
+    setCurrentDate(newDate);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
         <Text style={styles.headerTitle}>NLHEAM CHORUS</Text>
         
-        <View style={styles.buttonGrid}>
+                <View style={styles.buttonGrid}>
           <ActionButton 
             title="내 정보" 
             subtitle="My Information" 
@@ -66,59 +100,44 @@ export default function HomeScreen() {
           />
         </View>
 
-        <Text style={styles.scheduleHeader}>합주 시간표</Text>
-        <Schedule events={mockEvents} />
+        <View style={styles.scheduleHeaderContainer}>
+          <Text style={styles.scheduleHeader}>합주 시간표</Text>
+          <View style={styles.weekNavController}>
+            <Pressable onPress={handlePrevWeek}><IconSymbol name="chevron.left" size={22} color="white" /></Pressable>
+            <Text style={styles.weekRangeText}>{getWeekRange(currentDate)}</Text>
+            <Pressable onPress={handleNextWeek}><IconSymbol name="chevron.right" size={22} color="white" /></Pressable>
+            <Pressable onPress={() => setShowPicker(true)} style={{marginLeft: 10}}><IconSymbol name="calendar" size={22} color="white" /></Pressable>
+          </View>
+        </View>
+        
+        <Schedule currentDate={currentDate} events={mockEvents} />
+
+        {showPicker && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={currentDate}
+            mode={'date'}
+            is24Hour={true}
+            display="default"
+            onChange={onDateChange}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#1C1C1E',
-  },
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  buttonGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  button: {
-    width: '48%',
-    height: 120,
-    borderRadius: 20,
-    padding: 15,
-    marginBottom: 16,
-    justifyContent: 'space-between',
-  },
-  buttonIcon: {
-    alignSelf: 'flex-start',
-  },
-  buttonTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  buttonSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  scheduleHeader: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'white',
-    marginTop: 20,
-    marginBottom: 10,
-  },
+  safeArea: { flex: 1, backgroundColor: '#1C1C1E' },
+  container: { flex: 1, padding: 16 },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: 'white', marginBottom: 20, textAlign: 'center' },
+  buttonGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  button: { width: '48%', height: 120, borderRadius: 20, padding: 15, marginBottom: 16, justifyContent: 'space-between' },
+  buttonIcon: { alignSelf: 'flex-start' },
+  buttonTitle: { fontSize: 18, fontWeight: 'bold', color: 'white' },
+  buttonSubtitle: { fontSize: 14, color: 'rgba(255, 255, 255, 0.8)' },
+  scheduleHeaderContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, marginBottom: 10 },
+  scheduleHeader: { fontSize: 22, fontWeight: 'bold', color: 'white' },
+  weekNavController: { flexDirection: 'row', alignItems: 'center' },
+  weekRangeText: { color: 'white', marginHorizontal: 10, fontWeight: '600' },
 });
