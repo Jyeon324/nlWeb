@@ -1,7 +1,32 @@
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
+
+function InitialLayout() {
+  const { user } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    const inTabsGroup = segments[0] === '(tabs)';
+
+    // Prevent navigation until the router has mounted.
+    if (segments.length === 0) {
+      return;
+    }
+
+    if (user && !inTabsGroup) {
+      router.replace('/(tabs)');
+    } else if (!user && inTabsGroup) {
+      router.replace('/login');
+    }
+  }, [user, segments, router]);
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -9,17 +34,13 @@ export default function RootLayout() {
   });
 
   if (!loaded) {
-    // Async font loading only occurs in development.
     return null;
   }
 
   return (
-    <>
-      <Stack initialRouteName="login">
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
+    <AuthProvider>
+      <InitialLayout />
       <StatusBar style="light" />
-    </>
+    </AuthProvider>
   );
 }

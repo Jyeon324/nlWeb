@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView, Platform, SafeAreaView, 
 // Platform-specific imports
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DatePicker, { registerLocale } from "react-datepicker";
-import ko from 'date-fns/locale/ko';
+import { ko } from 'date-fns/locale/ko';
 import "react-datepicker/dist/react-datepicker.css";
 
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -96,9 +96,9 @@ export default function HomeScreen() {
           
           <View style={styles.buttonGrid}>
             <ActionButton title="내 정보" subtitle="My Information" iconName="person.fill" color="#007AFF" />
+            <ActionButton title="공지사항" subtitle="Announcements" iconName="megaphone.fill" color="#5856D6" />
             <ActionButton title="합주 신청" subtitle="Ensemble Application" iconName="music.note.list" color="#FF9500" />
             <ActionButton title="세션 신청" subtitle="Session Application" iconName="guitars.fill" color="#34C759" />
-            <ActionButton title="합주 조회" subtitle="Ensemble View" iconName="calendar" color="#5856D6" />
           </View>
 
           <View style={styles.scheduleHeaderContainer}>

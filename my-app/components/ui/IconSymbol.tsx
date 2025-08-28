@@ -22,6 +22,9 @@ const MAPPING = {
   'calendar': 'calendar-today',
   'plus.circle.fill': 'add-circle',
   'person.fill': 'person',
+  'megaphone.fill': 'campaign',
+  'music.note.list': 'queue-music',
+  'guitars.fill': 'music-note',
 } as IconMapping;
 
 /**
