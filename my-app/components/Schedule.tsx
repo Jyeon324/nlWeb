@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
@@ -7,15 +6,20 @@ const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 const SLOT_HEIGHT = 60;
 
 const isSameDay = (d1, d2) => {
+  if (!d1 || !d2) return false;
   return d1.getFullYear() === d2.getFullYear() &&
          d1.getMonth() === d2.getMonth() &&
          d1.getDate() === d2.getDate();
 };
 
-const Schedule = ({ currentDate, events = [] }) => {
+// Schedule component now accepts a theme prop
+const Schedule = ({ currentDate, events = [], theme }) => {
+  // Dynamic styles that depend on the theme
+  const styles = getStyles(theme);
+
   const weekDays = React.useMemo(() => {
     const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+    startOfWeek.setDate(currentDate.getDate() - startOfWeek.getDay());
     return Array.from({ length: 7 }, (_, i) => {
       const day = new Date(startOfWeek);
       day.setDate(startOfWeek.getDate() + i);
@@ -89,26 +93,27 @@ const Schedule = ({ currentDate, events = [] }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { height: 500, backgroundColor: '#2C2C2E', borderRadius: 20, overflow: 'hidden' },
-  headerContainer: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#444' },
+// Styles are now a function that returns a StyleSheet object based on the theme
+const getStyles = (theme) => StyleSheet.create({
+  container: { height: 500, backgroundColor: theme.scheduleBackground, borderRadius: 20, overflow: 'hidden' },
+  headerContainer: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: theme.borderColor },
   dayHeader: { flex: 1, paddingVertical: 8, alignItems: 'center' },
-  dayNameText: { color: '#FFF', fontSize: 12, marginBottom: 4 },
-  dayNumberText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
-  todayText: { color: '#E53935' },
+  dayNameText: { color: theme.text, fontSize: 12, marginBottom: 4 },
+  dayNumberText: { color: theme.text, fontWeight: 'bold', fontSize: 16 },
+  todayText: { color: '#E53935' }, // Specific highlight color, remains unchanged
   gridScrollView: { flex: 1 },
-  timeGutter: { width: 60, paddingHorizontal: 5, borderRightWidth: 1, borderRightColor: '#444' },
+  timeGutter: { width: 60, paddingHorizontal: 5, borderRightWidth: 1, borderRightColor: theme.borderColor },
   hourCell: { height: SLOT_HEIGHT, justifyContent: 'flex-start', alignItems: 'center' },
-  hourText: { color: '#888', fontSize: 12, transform: [{ translateY: -8 }] },
+  hourText: { color: theme.subtitleText, fontSize: 12, transform: [{ translateY: -8 }] },
   grid: { flex: 1, flexDirection: 'row', position: 'relative' },
-  dayColumn: { flex: 1, borderRightWidth: 1, borderRightColor: '#444' },
+  dayColumn: { flex: 1, borderRightWidth: 1, borderRightColor: theme.borderColor },
   timeSlot: {
     height: SLOT_HEIGHT,
     borderBottomWidth: 1,
-    borderBottomColor: '#444',
+    borderBottomColor: theme.borderColor,
   },
   eventBlock: { position: 'absolute', backgroundColor: 'rgba(229, 57, 53, 0.7)', borderRadius: 8, padding: 4, marginHorizontal: 2, alignItems: 'center', justifyContent: 'center' },
-  eventText: { color: 'white', fontSize: 12, fontWeight: 'bold' },
+  eventText: { color: 'white', fontSize: 12, fontWeight: 'bold' }, // Event text color on a colored background, remains white
 });
 
 export default Schedule;

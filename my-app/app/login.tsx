@@ -1,14 +1,16 @@
-
 import { useAuth } from '@/hooks/useAuth';
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, Alert, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
+import Colors from '../constants/Colors';
 
 export default function LoginScreen() {
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { signIn } = useAuth();
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
 
   const handleLogin = () => {
     if (studentId === 'root' && password === '1234') {
@@ -20,31 +22,31 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>NLHEAM CHORUS</Text>
-      <Text style={styles.subtitle}>로그인하여 합주에 참여하세요</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.title, { color: theme.text }]}>NLHEAM CHORUS</Text>
+      <Text style={[styles.subtitle, { color: theme.subtitleText }]}>로그인하여 합주에 참여하세요</Text>
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.inputTextColor }]}
           placeholder="학번"
-          placeholderTextColor="#888"
+          placeholderTextColor={theme.subtitleText}
           value={studentId}
           onChangeText={setStudentId}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.inputTextColor }]}
           placeholder="비밀번호"
-          placeholderTextColor="#888"
+          placeholderTextColor={theme.subtitleText}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
         />
       </View>
-      <Pressable style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>로그인</Text>
+      <Pressable style={[styles.loginButton, { backgroundColor: theme.buttonBackground }]} onPress={handleLogin}>
+        <Text style={[styles.loginButtonText, { color: theme.buttonTextColor }]}>로그인</Text>
       </Pressable>
       <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>계정이 없으신가요? </Text>
+        <Text style={[styles.signupText, { color: theme.subtitleText }]}>계정이 없으신가요? </Text>
         <Pressable onPress={() => Alert.alert('알림', '회원가입 기능은 아직 준비중입니다.')}>
           <Text style={[styles.signupText, styles.signupLink]}>회원가입</Text>
         </Pressable>
@@ -56,7 +58,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1C1E',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -64,11 +65,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
     marginBottom: 20,
   },
   subtitle: {
-    color: '#888',
     fontSize: 16,
     marginBottom: 30,
   },
@@ -77,8 +76,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: '#2C2C2E',
-    color: '#FFFFFF',
     paddingHorizontal: 15,
     paddingVertical: 15,
     borderRadius: 10,
@@ -86,14 +83,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: '#E53935',
     width: '100%',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
   loginButtonText: {
-    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -102,11 +97,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   signupText: {
-    color: '#888',
     fontSize: 16,
   },
   signupLink: {
-    color: '#E53935',
+    color: '#E53935', // This color is the same in both themes, so I can leave it.
     textDecorationLine: 'underline',
   },
 });

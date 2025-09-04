@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, SafeAreaView, useColorScheme } from 'react-native';
 
 // Platform-specific imports
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Schedule from '@/components/Schedule';
 import { Link, useRouter } from 'expo-router';
+import Colors from '../../constants/Colors';
 
 // Register Korean locale
 registerLocale('ko', ko);
@@ -19,11 +20,11 @@ const mockEvents = [
   { id: 2, day: '금', startTime: '18:00', endTime: '21:00', title: '신입생 환영 합주' },
 ];
 
-const ActionButton = ({ title, subtitle, iconName, color, onPress }) => (
+const ActionButton = ({ title, subtitle, iconName, color, onPress, theme }) => (
   <Pressable style={[styles.button, { backgroundColor: color }]} onPress={onPress}>
     <IconSymbol name={iconName} size={32} color="white" style={styles.buttonIcon} />
     <Text style={styles.buttonTitle}>{title}</Text>
-    <Text style={styles.buttonSubtitle}>{subtitle}</Text>
+    <Text style={[styles.buttonSubtitle, { color: theme.cardSubtitle }]}>{subtitle}</Text>
   </Pressable>
 );
 
@@ -40,6 +41,8 @@ export default function HomeScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
 
   const handlePrevWeek = () => {
     const newDate = new Date(currentDate);
@@ -68,7 +71,7 @@ export default function HomeScreen() {
       return (
         <Pressable style={styles.modalBackdrop} onPress={() => setShowPicker(false)}>
           <Pressable onPress={(e) => e.stopPropagation()}>
-            <View style={styles.webDatePickerContainer}>
+            <View style={[styles.webDatePickerContainer, { backgroundColor: theme.background }]}>
               <DatePicker
                 selected={currentDate}
                 onChange={onDateChange}
@@ -93,30 +96,30 @@ export default function HomeScreen() {
 
   return (
     <View style={{flex: 1}}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
         <ScrollView style={styles.container}>
-          <Text style={styles.headerTitle}>NLHEAM CHORUS</Text>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>NLHEAM CHORUS</Text>
           
           <View style={styles.buttonGrid}>
-            <ActionButton title="내 정보" subtitle="My Information" iconName="person.fill" color="#007AFF" />
-            <ActionButton title="공지사항" subtitle="Announcements" iconName="megaphone.fill" color="#5856D6" />
+            <ActionButton title="내 정보" subtitle="My Information" iconName="person.fill" color="#007AFF" theme={theme} />
+            <ActionButton title="공지사항" subtitle="Announcements" iconName="megaphone.fill" color="#5856D6" theme={theme} />
             <Link href="/addJam" asChild>
-              <ActionButton title="합주 신청" subtitle="Ensemble Application" iconName="music.note.list" color="#FF9500" />
+              <ActionButton title="합주 신청" subtitle="Ensemble Application" iconName="music.note.list" color="#FF9500" theme={theme} />
             </Link>
-            <ActionButton title="세션 신청" subtitle="Session Application" iconName="guitars.fill" color="#34C759" />
+            <ActionButton title="세션 신청" subtitle="Session Application" iconName="guitars.fill" color="#34C759" theme={theme} />
           </View>
 
           <View style={styles.scheduleHeaderContainer}>
-            <Text style={styles.scheduleHeader}>합주 시간표</Text>
+            <Text style={[styles.scheduleHeader, { color: theme.text }]}>합주 시간표</Text>
             <View style={styles.weekNavController}>
-              <Pressable onPress={handlePrevWeek} style={styles.navButton}><IconSymbol name="chevron.left" size={22} color="white" /></Pressable>
-              <Text style={styles.weekRangeText}>{getWeekRange(currentDate)}</Text>
-              <Pressable onPress={handleNextWeek} style={styles.navButton}><IconSymbol name="chevron.right" size={22} color="white" /></Pressable>
-              <Pressable onPress={() => setShowPicker(true)} style={styles.navButton}><IconSymbol name="calendar" size={22} color="white" /></Pressable>
+              <Pressable onPress={handlePrevWeek} style={styles.navButton}><IconSymbol name="chevron.left" size={22} color={theme.text} /></Pressable>
+              <Text style={[styles.weekRangeText, { color: theme.text }]}>{getWeekRange(currentDate)}</Text>
+              <Pressable onPress={handleNextWeek} style={styles.navButton}><IconSymbol name="chevron.right" size={22} color={theme.text} /></Pressable>
+              <Pressable onPress={() => setShowPicker(true)} style={styles.navButton}><IconSymbol name="calendar" size={22} color={theme.text} /></Pressable>
             </View>
           </View>
           
-          <Schedule currentDate={currentDate} events={mockEvents} />
+          <Schedule currentDate={currentDate} events={mockEvents} theme={theme} />
         </ScrollView>
       </SafeAreaView>
 
@@ -126,18 +129,18 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#1C1C1E' },
+  safeArea: { flex: 1 },
   container: { flex: 1, padding: 16 },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: 'white', marginBottom: 20, textAlign: 'center' },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
   buttonGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   button: { width: '48%', height: 120, borderRadius: 20, padding: 15, marginBottom: 16, justifyContent: 'space-between' },
   buttonIcon: { alignSelf: 'flex-start' },
   buttonTitle: { fontSize: 18, fontWeight: 'bold', color: 'white' },
-  buttonSubtitle: { fontSize: 14, color: 'rgba(255, 255, 255, 0.8)' },
+  buttonSubtitle: { fontSize: 14 },
   scheduleHeaderContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, marginBottom: 10 },
-  scheduleHeader: { fontSize: 22, fontWeight: 'bold', color: 'white' },
+  scheduleHeader: { fontSize: 22, fontWeight: 'bold' },
   weekNavController: { flexDirection: 'row', alignItems: 'center' },
-  weekRangeText: { color: 'white', marginHorizontal: 10, fontWeight: '600', fontSize: 16 },
+  weekRangeText: { marginHorizontal: 10, fontWeight: '600', fontSize: 16 },
   navButton: { padding: 5 },
   modalBackdrop: {
     position: 'absolute',
@@ -151,7 +154,6 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   webDatePickerContainer: {
-    backgroundColor: 'white',
     borderRadius: 16,
     padding: 10,
     overflow: 'hidden',

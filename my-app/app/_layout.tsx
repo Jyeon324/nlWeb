@@ -1,12 +1,16 @@
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { useFonts } from 'expo-font';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { View, useColorScheme } from 'react-native';
 import 'react-native-reanimated';
+import Colors from '../constants/Colors';
 
-function InitialLayout() {
+function ThemedLayout() {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  
   const { user, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
@@ -14,26 +18,38 @@ function InitialLayout() {
   useEffect(() => {
     if (loading) return;
 
-    const inAuthGroup = segments[0] === 'login'; // Assuming 'login' is the auth route
-    const isAddJamRoute = segments[0] === 'addJam'; // Our new route
+    const inAuthRoute = segments[0] === 'login';
 
-    // If user is not logged in AND not on a public route (login or addJam), redirect to login
-    if (!user && !inAuthGroup && !isAddJamRoute) {
+    // If the user is not signed in and not on the login screen, redirect to login.
+    if (!user && !inAuthRoute) {
       router.replace('/login');
-    }
-    // If user is logged in AND trying to access a non-tab route (and not addJam), redirect to tabs
-    else if (user && !['(tabs)', 'addJam'].includes(segments[0])) {
+    } 
+    // If the user is signed in and on the login screen, redirect to the home screen.
+    else if (user && inAuthRoute) {
       router.replace('/(tabs)');
     }
   }, [user, loading, segments, router]);
 
-  // If we are loading, we don't render anything.
-  // We can return a loading screen here if we want.
   if (loading) {
-    return <View />;
+    return <View style={{ flex: 1, backgroundColor: theme.background }} />;
   }
 
-  return <Slot />;
+  return (
+    <>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: theme.background },
+          headerTintColor: theme.text,
+          headerTitleStyle: { color: theme.text },
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="addJam" options={{ title: '합주 추가' }} />
+      </Stack>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+    </>
+  );
 }
 
 export default function RootLayout() {
@@ -47,8 +63,7 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <InitialLayout />
-      <StatusBar style="light" />
+      <ThemedLayout />
     </AuthProvider>
   );
 }

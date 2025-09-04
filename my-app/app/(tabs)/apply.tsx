@@ -1,9 +1,12 @@
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, BackHandler, useColorScheme } from 'react-native';
 import { useRouter, Stack, useFocusEffect } from 'expo-router';
+import Colors from '../../constants/Colors';
 
 export default function ApplyScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
 
   const handleBackPress = () => {
     router.push('/(tabs)');
@@ -13,7 +16,6 @@ export default function ApplyScreen() {
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-
       return () => subscription.remove();
     }, [])
   );
@@ -22,15 +24,17 @@ export default function ApplyScreen() {
     <>
       <Stack.Screen
         options={{
+          headerStyle: { backgroundColor: theme.background },
+          headerTitleStyle: { color: theme.text },
           headerLeft: () => (
             <TouchableOpacity onPress={handleBackPress} style={{ marginLeft: 15 }}>
-              <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'black' }}>←</Text>
+              <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.text }}>←</Text>
             </TouchableOpacity>
           ),
         }}
       />
-      <View style={styles.container}>
-        <Text style={styles.text}>Apply Screen</Text>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <Text style={[styles.text, { color: theme.text }]}>Apply Screen</Text>
       </View>
     </>
   );
