@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, SafeAreaView, Modal } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, SafeAreaView } from 'react-native';
 
 // Platform-specific imports
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -9,6 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Schedule from '@/components/Schedule';
+import { Link, useRouter } from 'expo-router';
 
 // Register Korean locale
 registerLocale('ko', ko);
@@ -38,6 +39,7 @@ const getWeekRange = (date) => {
 export default function HomeScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const router = useRouter();
 
   const handlePrevWeek = () => {
     const newDate = new Date(currentDate);
@@ -51,8 +53,9 @@ export default function HomeScreen() {
     setCurrentDate(newDate);
   };
 
-  const onDateChange = (event, selectedDate) => {
+  const onDateChange = (eventOrDate, selectedDateOrEvent) => {
     setShowPicker(false);
+    const selectedDate = Platform.OS === 'web' ? eventOrDate : selectedDateOrEvent;
     if (selectedDate) {
       setCurrentDate(selectedDate);
     }
@@ -97,7 +100,9 @@ export default function HomeScreen() {
           <View style={styles.buttonGrid}>
             <ActionButton title="내 정보" subtitle="My Information" iconName="person.fill" color="#007AFF" />
             <ActionButton title="공지사항" subtitle="Announcements" iconName="megaphone.fill" color="#5856D6" />
-            <ActionButton title="합주 신청" subtitle="Ensemble Application" iconName="music.note.list" color="#FF9500" />
+            <Link href="/addJam" asChild>
+              <ActionButton title="합주 신청" subtitle="Ensemble Application" iconName="music.note.list" color="#FF9500" />
+            </Link>
             <ActionButton title="세션 신청" subtitle="Session Application" iconName="guitars.fill" color="#34C759" />
           </View>
 
@@ -149,6 +154,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 10,
-    overflow: 'hidden', // Ensures the child's corners are also rounded
+    overflow: 'hidden',
   },
 });
