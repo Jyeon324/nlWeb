@@ -45,7 +45,7 @@ function ThemedLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="addJam" options={{ title: '합주 추가' }} />
+        <Stack.Screen name="addJam" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </>

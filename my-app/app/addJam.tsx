@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, Alert, Platform, Pressable, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -10,6 +10,7 @@ const displayHours = Array.from({ length: 10 }, (_, i) => `${String(i + 9).padSt
 const SLOT_HEIGHT = 40;
 
 const isSameDay = (d1, d2) => {
+  if (!d1 || !d2) return false;
   return d1.getFullYear() === d2.getFullYear() &&
          d1.getMonth() === d2.getMonth() &&
          d1.getDate() === d2.getDate();
@@ -77,7 +78,7 @@ export default function AddJamScreen() {
 
   const handleSubmit = () => { /* ... existing submit logic ... */ };
 
-  const weekDays = React.useMemo(() => {
+  const weekDays = useMemo(() => {
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     return Array.from({ length: 7 }, (_, i) => {
@@ -95,7 +96,7 @@ export default function AddJamScreen() {
     const timetableStartHour = 9;
     const startOffsetMinutes = (startHour - timetableStartHour) * 60 + startMinute;
     const durationMinutes = (endHour - startHour) * 60 + (endMinute - startMinute);
-    if (startOffsetMinutes < 0 || durationMinutes <= 0) return null;
+    if (startOffsetMinutes < 0 || durationMinutes <= 0 || !isSameDay(day, selectedStartTime)) return null;
     const top = (startOffsetMinutes / 60) * SLOT_HEIGHT;
     const height = (durationMinutes / 60) * SLOT_HEIGHT;
     return { position: 'absolute', top, height, width: '100%', backgroundColor: 'rgba(0, 122, 255, 0.6)', borderRadius: 4, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 2 };
@@ -126,13 +127,54 @@ export default function AddJamScreen() {
           ))}
         </View>
         <ScrollView style={styles.gridScrollView}>
-          {/* ... timetable grid ... */}
+            <View style={{ flexDirection: 'row', flex: 1 }}>
+                <View style={styles.timeGutter}>
+                {displayHours.map(hour => (
+                    <View key={hour} style={styles.hourCell}>
+                    <Text style={styles.hourText}>{hour}</Text>
+                    </View>
+                ))}
+                </View>
+
+                <View style={styles.grid}>
+                {weekDays.map((date, index) => (
+                    <View key={index} style={styles.dayColumn}>
+                    {displayHours.map(hour => (
+                        <TouchableOpacity key={hour} style={styles.timeSlot} />
+                    ))}
+                    {calculateJamBlockStyle(date) && (
+                        <View style={calculateJamBlockStyle(date)}>
+                        <Text style={styles.jamBlockText}>
+                            {selectedStartTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })} -
+                            {selectedEndTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                        </Text>
+                        </View>
+                    )}
+                    </View>
+                ))}
+                </View>
+            </View>
         </ScrollView>
       </View>
 
       <ScrollView contentContainerStyle={styles.formContainer}>
         <View style={styles.dateTimeSelectionContainer}>
-            {/* ... time pickers ... */}
+            <View style={styles.inputGroupHalf}>
+                <Text style={styles.label}>시작 시간</Text>
+                <Pressable onPress={() => { setCurrentPickerTarget('startTime'); setShowPicker(true); }} style={styles.dateTimeButton}>
+                <Text style={styles.dateTimeButtonText}>
+                    {selectedStartTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                </Text>
+                </Pressable>
+            </View>
+            <View style={styles.inputGroupHalf}>
+                <Text style={styles.label}>끝 시간</Text>
+                <Pressable onPress={() => { setCurrentPickerTarget('endTime'); setShowPicker(true); }} style={styles.dateTimeButton}>
+                <Text style={styles.dateTimeButtonText}>
+                    {selectedEndTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                </Text>
+                </Pressable>
+            </View>
         </View>
         <View style={styles.inputGroup}>
           <Text style={styles.label}>가수</Text>
@@ -193,8 +235,9 @@ const getStyles = (theme = Colors.dark) => StyleSheet.create({
   dayColumn: { flex: 1, borderRightWidth: 1, borderRightColor: theme.borderColor },
   timeSlot: { height: SLOT_HEIGHT, borderBottomWidth: 1, borderBottomColor: theme.borderColor },
   jamBlockText: { color: 'white', fontSize: 10, fontWeight: 'bold', textAlign: 'center' },
-  formContainer: { padding: 20, backgroundColor: theme.background },
+  formContainer: { padding: 20 },
   inputGroup: { marginBottom: 15 },
+  inputGroupHalf: { flex: 1, marginHorizontal: 5 },
   label: { fontSize: 16, fontWeight: 'bold', marginBottom: 5, color: theme.text },
   input: { backgroundColor: theme.inputBackground, borderWidth: 1, borderColor: theme.borderColor, borderRadius: 8, padding: 12, fontSize: 16, color: theme.text },
   dateTimeSelectionContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
