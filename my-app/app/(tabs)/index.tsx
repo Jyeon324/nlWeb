@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, SafeAreaView, useColorScheme } from 'react-native';
-
-// Platform-specific imports
-import DateTimePicker from '@react-native-community/datetimepicker';
-import DatePicker, { registerLocale } from "react-datepicker";
-import { ko } from 'date-fns/locale/ko';
-import "react-datepicker/dist/react-datepicker.css";
+import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, useColorScheme, Modal } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Schedule from '@/components/Schedule';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import Colors from '../../constants/Colors';
-
-// Register Korean locale
-registerLocale('ko', ko);
 
 const mockEvents = [
   { id: 1, day: '수', startTime: '14:00', endTime: '16:00', title: '정기 합주' },
@@ -37,12 +29,34 @@ const getWeekRange = (date) => {
   return `${format(startOfWeek)} - ${format(endOfWeek)}`;
 };
 
+const getCalendarTheme = (theme) => ({
+  backgroundColor: theme.background,
+  calendarBackground: theme.scheduleBackground,
+  textSectionTitleColor: theme.text,
+  selectedDayBackgroundColor: Colors.dark.tint, // Using a consistent tint color
+  selectedDayTextColor: '#ffffff',
+  todayTextColor: Colors.dark.tint,
+  dayTextColor: theme.text,
+  textDisabledColor: theme.subtitleText,
+  dotColor: Colors.dark.tint,
+  selectedDotColor: '#ffffff',
+  arrowColor: Colors.dark.tint,
+  monthTextColor: theme.text,
+  indicatorColor: theme.text,
+  textDayFontWeight: '300',
+  textMonthFontWeight: 'bold',
+  textDayHeaderFontWeight: '300',
+  textDayFontSize: 16,
+  textMonthFontSize: 16,
+  textDayHeaderFontSize: 14,
+});
+
 export default function HomeScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
-  const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
+  const calendarTheme = getCalendarTheme(theme);
 
   const handlePrevWeek = () => {
     const newDate = new Date(currentDate);
@@ -56,43 +70,32 @@ export default function HomeScreen() {
     setCurrentDate(newDate);
   };
 
-  const onDateChange = (eventOrDate, selectedDateOrEvent) => {
+  const onDayPress = (day) => {
+    setCurrentDate(new Date(day.timestamp));
     setShowPicker(false);
-    const selectedDate = Platform.OS === 'web' ? eventOrDate : selectedDateOrEvent;
-    if (selectedDate) {
-      setCurrentDate(selectedDate);
-    }
   };
 
-  const renderDatePicker = () => {
-    if (!showPicker) return null;
-
-    if (Platform.OS === 'web') {
-      return (
-        <Pressable style={styles.modalBackdrop} onPress={() => setShowPicker(false)}>
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            <View style={[styles.webDatePickerContainer, { backgroundColor: theme.background }]}>
-              <DatePicker
-                selected={currentDate}
-                onChange={onDateChange}
-                inline
-                locale="ko"
-              />
-            </View>
-          </Pressable>
+  const renderCalendarModal = () => (
+    <Modal
+      visible={showPicker}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setShowPicker(false)}
+    >
+      <Pressable style={styles.modalBackdrop} onPress={() => setShowPicker(false)}>
+        <Pressable onPress={(e) => e.stopPropagation()}>
+          <View style={[styles.calendarContainer, { backgroundColor: theme.scheduleBackground }]}>
+            <Calendar
+              current={currentDate.toISOString().split('T')[0]}
+              onDayPress={onDayPress}
+              monthFormat={'yyyy년 MM월'}
+              theme={calendarTheme}
+            />
+          </View>
         </Pressable>
-      );
-    }
-
-    return (
-      <DateTimePicker
-        value={currentDate}
-        mode="date"
-        display="default"
-        onChange={onDateChange}
-      />
-    );
-  };
+      </Pressable>
+    </Modal>
+  );
 
   return (
     <View style={{flex: 1}}>
@@ -123,7 +126,7 @@ export default function HomeScreen() {
         </ScrollView>
       </SafeAreaView>
 
-      {renderDatePicker()}
+      {renderCalendarModal()}
     </View>
   );
 }
@@ -143,19 +146,14 @@ const styles = StyleSheet.create({
   weekRangeText: { marginHorizontal: 10, fontWeight: '600', fontSize: 16 },
   navButton: { padding: 5 },
   modalBackdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 999,
   },
-  webDatePickerContainer: {
+  calendarContainer: {
     borderRadius: 16,
-    padding: 10,
     overflow: 'hidden',
+    width: '90%',
   },
 });
