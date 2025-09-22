@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, useColorScheme, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, useColorScheme, ScrollView, Image, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '../../constants/Colors';
 
@@ -27,6 +27,7 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
   const styles = getStyles(theme);
+  const [isProfileVisible, setIsProfileVisible] = useState(true);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -49,6 +50,18 @@ export default function ProfileScreen() {
         <View style={styles.userInfoContainer}>
           <Text style={styles.userName}>{user.name}</Text>
           <Text style={styles.userAgeGender}>{`${user.age}대, ${user.gender}`}</Text>
+        </View>
+
+        {/* --- Profile Visibility Toggle --- */}
+        <View style={styles.toggleRowContainer}>
+          <Text style={styles.toggleRowText}>프로필 공개</Text>
+          <Switch
+            trackColor={{ false: '#767577', true: Colors.dark.tint }}
+            thumbColor={isProfileVisible ? '#f4f3f4' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={() => setIsProfileVisible(previousState => !previousState)}
+            value={isProfileVisible}
+          />
         </View>
 
         {/* --- Introduction Card --- */}
@@ -130,6 +143,22 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: 16,
     color: theme.subtitleText,
     marginTop: 4,
+  },
+  // Toggle Row Styles
+  toggleRowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: theme.scheduleBackground,
+    borderRadius: 12,
+    padding: 20,
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  toggleRowText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.text,
   },
   // Card Styles
   card: {

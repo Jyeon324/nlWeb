@@ -16,7 +16,7 @@ const ActionButton = ({ title, subtitle, iconName, color, onPress, theme }) => (
   <Pressable style={[styles.button, { backgroundColor: color }]} onPress={onPress}>
     <IconSymbol name={iconName} size={32} color="white" style={styles.buttonIcon} />
     <Text style={styles.buttonTitle}>{title}</Text>
-    <Text style={[styles.buttonSubtitle, { color: theme.cardSubtitle }]}>{subtitle}</Text>
+    <Text style={[styles.buttonSubtitle, { color: 'rgba(255, 255, 255, 0.8)' }]}>{subtitle}</Text>
   </Pressable>
 );
 
