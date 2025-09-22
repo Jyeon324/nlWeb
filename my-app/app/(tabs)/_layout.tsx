@@ -1,10 +1,6 @@
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
-import { Platform, useColorScheme } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
+import { useColorScheme } from 'react-native';
 import Colors from '../../constants/Colors';
 
 export default function TabLayout() {
@@ -12,45 +8,19 @@ export default function TabLayout() {
   const theme = Colors[colorScheme];
 
   return (
-    <Tabs
+    <Stack
       screenOptions={{
-        tabBarActiveTintColor: theme.tabIconSelected,
-        tabBarInactiveTintColor: theme.tabIconDefault,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: () => <TabBarBackground />,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: 'absolute',
-            backgroundColor: 'transparent',
-          },
-          default: {
-            backgroundColor: theme.background,
-            borderTopColor: theme.borderColor,
-          },
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: '홈',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="apply"
-        options={{
-          title: '신청하기',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.circle.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: '내 정보',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+        headerStyle: {
+          backgroundColor: theme.background,
+        },
+        headerTintColor: theme.text,
+        headerTitleStyle: {
+          color: theme.text,
+        },
+      }}
+    >
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="profile" options={{ title: '내 정보' }} />
+    </Stack>
   );
 }

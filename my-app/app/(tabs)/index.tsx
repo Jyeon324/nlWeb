@@ -104,7 +104,9 @@ export default function HomeScreen() {
           <Text style={[styles.headerTitle, { color: theme.text }]}>NLHEAM CHORUS</Text>
           
           <View style={styles.buttonGrid}>
-            <ActionButton title="내 정보" subtitle="My Information" iconName="person.fill" color="#007AFF" theme={theme} />
+            <Link href="/(tabs)/profile" asChild>
+              <ActionButton title="내 정보" subtitle="My Information" iconName="person.fill" color="#007AFF" theme={theme} />
+            </Link>
             <ActionButton title="공지사항" subtitle="Announcements" iconName="megaphone.fill" color="#5856D6" theme={theme} />
             <Link href="/addJam" asChild>
               <ActionButton title="합주 신청" subtitle="Ensemble Application" iconName="music.note.list" color="#FF9500" theme={theme} />
