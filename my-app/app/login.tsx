@@ -1,23 +1,29 @@
 import { useAuth } from '@/hooks/useAuth';
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, Alert, useColorScheme } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, Alert, useColorScheme, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import Colors from '../constants/Colors';
 
 export default function LoginScreen() {
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { signIn } = useAuth();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
 
-  const handleLogin = () => {
-    if (studentId === 'root' && password === '1234') {
-      signIn();
-      router.replace('/(tabs)');
-    } else {
-      Alert.alert('로그인 실패', '학번 또는 비밀번호가 올바르지 않습니다.');
+  const handleLogin = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      // The API expects an 'identifier', so we pass studentId as the identifier.
+      await signIn(studentId, password);
+      // The auth logic in the root layout will handle the redirect automatically.
+    } catch (error) {
+      Alert.alert('로그인 실패', error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -28,10 +34,11 @@ export default function LoginScreen() {
       <View style={styles.inputContainer}>
         <TextInput
           style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.inputTextColor }]}
-          placeholder="학번"
+          placeholder="학번 또는 이메일"
           placeholderTextColor={theme.subtitleText}
           value={studentId}
           onChangeText={setStudentId}
+          autoCapitalize="none"
         />
         <TextInput
           style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.inputTextColor }]}
@@ -42,8 +49,12 @@ export default function LoginScreen() {
           onChangeText={setPassword}
         />
       </View>
-      <Pressable style={[styles.loginButton, { backgroundColor: theme.buttonBackground }]} onPress={handleLogin}>
-        <Text style={[styles.loginButtonText, { color: theme.buttonTextColor }]}>로그인</Text>
+      <Pressable style={[styles.loginButton, { backgroundColor: theme.buttonBackground }]} onPress={handleLogin} disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color={theme.buttonTextColor} />
+        ) : (
+          <Text style={[styles.loginButtonText, { color: theme.buttonTextColor }]}>로그인</Text>
+        )}
       </Pressable>
       <View style={styles.signupContainer}>
         <Text style={[styles.signupText, { color: theme.subtitleText }]}>계정이 없으신가요? </Text>
@@ -100,7 +111,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   signupLink: {
-    color: '#E53935', // This color is the same in both themes, so I can leave it.
+    color: '#E53935',
     textDecorationLine: 'underline',
   },
 });
