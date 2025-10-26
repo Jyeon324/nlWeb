@@ -5,6 +5,7 @@ const AuthContext = createContext<{
   signOut: () => void;
   user: any;
   loading: boolean;
+  signUp: (studentId, username, password, confirmPassword, email, phone, batch, session) => Promise<void>;
 } | null>(null);
 
 // This hook can be used to access the user info.
@@ -54,6 +55,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signUp = async (studentId, username, password, confirmPassword, email, phone, batch, session) => {
+    const passwordMatching = password === confirmPassword;
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ studentId, username, password, confirmPassword, email, phone, batch, session, passwordMatching }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok || !responseData.success) {
+        throw new Error(responseData.message || '회원가입에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -61,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signOut: () => setAuth(null),
         user,
         loading,
+        signUp,
       }}>
       {children}
     </AuthContext.Provider>

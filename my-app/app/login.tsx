@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, Alert, useColorScheme, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import Colors from '../constants/Colors';
 
 export default function LoginScreen() {
@@ -58,9 +58,11 @@ export default function LoginScreen() {
       </Pressable>
       <View style={styles.signupContainer}>
         <Text style={[styles.signupText, { color: theme.subtitleText }]}>계정이 없으신가요? </Text>
-        <Pressable onPress={() => Alert.alert('알림', '회원가입 기능은 아직 준비중입니다.')}>
-          <Text style={[styles.signupText, styles.signupLink]}>회원가입</Text>
-        </Pressable>
+        <Link href="/register" asChild>
+          <Pressable>
+            <Text style={[styles.signupText, styles.signupLink]}>회원가입</Text>
+          </Pressable>
+        </Link>
       </View>
     </View>
   );

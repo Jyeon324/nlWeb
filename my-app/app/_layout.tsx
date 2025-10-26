@@ -29,7 +29,7 @@ function ThemedLayout() {
   useEffect(() => {
     if (loading) return;
 
-    const inAuthRoute = segments[0] === 'login';
+    const inAuthRoute = segments[0] === 'login' || segments[0] === 'register';
 
     // If the user is not signed in and not on the login screen, redirect to login.
     if (!user && !inAuthRoute) {
@@ -56,6 +56,7 @@ function ThemedLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="addJam" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
